@@ -1,0 +1,3 @@
+{% for folder in folders %}
+<li hx-get="/bookmarks?folder={{ folder }}" hx-target="#feed" hx-swap="innerHTML">{{ folder }}</li>
+{% endfor %}

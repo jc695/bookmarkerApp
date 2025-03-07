@@ -1,0 +1,22 @@
+version: '3'
+services:
+  fastapi:
+    build:
+      context: ./fastapi-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+
+  go-server:
+    build:
+      context: ./go-server
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "80:80"

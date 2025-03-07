@@ -1,0 +1,8 @@
+{% for bookmark in bookmarks %}
+<div class="bookmark">
+  <h3><a href="{{ bookmark.url }}" target="_blank">{{ bookmark.title }}</a></h3>
+  <p>{{ bookmark.description or '' }}</p>
+  <p><strong>Folder:</strong> {{ bookmark.folder or 'None' }}</p>
+  <p><strong>Keywords:</strong> {{ bookmark.keywords | join(', ') if bookmark.keywords else '' }}</p>
+</div>
+{% endfor %}
