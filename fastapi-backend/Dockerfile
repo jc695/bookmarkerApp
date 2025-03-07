@@ -21,16 +21,22 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN pip install uv
 
 # Copy dependency descriptor files
-COPY pyproject.toml uv.lock ./
+COPY ./fastapi-backend/pyproject.toml ./fastapi-backend/uv.lock ./
+
+# Copy frontend templates into the container
+COPY ../frontend/templates ./frontend/templates 
+
+# Activate venv
+RUN uv venv
 
 # Export a pip-compatible requirements file from uv.lock using the correct format flag
 RUN uv export --format=requirements-txt > requirements.txt
 
 # Install dependencies into the system environment using uv (now with updated rustc)
-RUN uv pip install --system -r requirements.txt
+RUN uv pip install -r requirements.txt
 
 # Copy the rest of your application code
-COPY . .
+COPY ./fastapi-backend .
 
 # Expose port 8000 for FastAPI
 EXPOSE 8000

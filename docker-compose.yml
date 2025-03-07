@@ -2,10 +2,12 @@ version: '3'
 services:
   fastapi:
     build:
-      context: ./fastapi-backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: fastapi-backend/Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - ./frontend/templates:/app/frontend/templates
 
   go-server:
     build:

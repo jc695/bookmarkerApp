@@ -6,7 +6,7 @@ from typing import List, Optional
 from uuid import uuid4
 
 app = FastAPI()
-templates = Jinja2Templates(directory="frontend/templates")  # Create a templates directory
+templates = Jinja2Templates(directory="/app/frontend/templates")  # Create a templates directory
 
 class Bookmark(BaseModel):
     id: Optional[str] = None
@@ -18,6 +18,7 @@ class Bookmark(BaseModel):
 
 # In-memory datastore
 bookmarks_db = {}
+
 
 @app.get("/bookmarks", response_class=HTMLResponse)
 async def get_bookmarks():
