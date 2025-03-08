@@ -1,6 +1,3 @@
-Here's a professional README.md template for your project:
-
-```markdown
 # Bookmarker API
 
 ![Python 3.10](https://img.shields.io/badge/Python-3.10-blue)
