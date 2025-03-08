@@ -1,4 +1,4 @@
-# Bookmarker API
+# Bookmarker App
 
 ![Python 3.10](https://img.shields.io/badge/Python-3.10-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-green)
