@@ -1,0 +1,42 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="article-toolbar">
+    <button id="backBtn">← Back</button>
+    <div class="toolbar-actions">
+        <button class="tag-btn">Tag</button>
+        <button class="favorite-btn">★</button>
+        <!-- Add other action buttons -->
+        <div class="display-settings">
+            <button class="settings-btn">Display</button>
+            <div class="settings-menu">
+                <div class="theme-selector">
+                    <label>Theme:</label>
+                    <select id="theme">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="system">System</option>
+                    </select>
+                </div>
+                <div class="font-controls">
+                    <button id="decrease-font">A-</button>
+                    <button id="increase-font">A+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="article-container">
+    <h1>{{ article.title }}</h1>
+    <div class="meta">
+        <a href="{{ article.url }}">{{ article.domain }}</a>
+        <span>{{ article.reading_time }} min read</span>
+        <span>Published: {{ article.date_published }}</span>
+    </div>
+    <div class="article-content" id="articleContent">
+        {{ article.content|safe }}
+    </div>
+    <a href="{{ article.url }}" class="source-link">View Original</a>
+</div>
+{% endblock %}
