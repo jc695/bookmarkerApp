@@ -1,24 +1,13 @@
-version: '3'
+version: '3.8'
 services:
-  fastapi:
+  backend:
     build:
       context: .
-      dockerfile: fastapi-backend/Dockerfile
+      dockerfile: src/Dockerfile
+    volumes:
+      - ./src/app:/app/src/app
     ports:
       - "8000:8000"
-    volumes:
-      - ./frontend/templates:/app/frontend/templates
-
-  go-server:
-    build:
-      context: ./go-server
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-
-  frontend:
-    image: nginx:alpine
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
-    ports:
-      - "80:80"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: .venv/bin/uvicorn bookmarker.main:app --host 0.0.0.0 --port 8000 --reload

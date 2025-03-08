@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarker App - Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .form { margin-bottom: 20px; }
+        .articles { display: flex; flex-wrap: wrap; gap: 20px; }
+        .article-card { border: 1px solid #ddd; padding: 10px; width: 300px; }
+        .error { color: red; }
+    </style>
+    <!-- Optional: Include HTMX for dynamic updates -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Bookmarker App</h1>
+        <form class="form" method="post" action="/save" hx-post="/save" hx-target="#articles" hx-swap="beforeend">
+            <input type="url" name="url" placeholder="Enter article URL" required>
+            <button type="submit">Save Article</button>
+        </form>
+        <div id="articles" class="articles">
+            {% if not articles %}
+              <p>No articles saved yet</p>
+            {% endif %}
+            {% for article in articles %}
+              {% include "partials/article_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

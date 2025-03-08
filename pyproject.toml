@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=65.5.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bookmarkerapp"
+version = "0.1.0"
+description = "Instapaper Bookmarker App Alternative"
+readme = "README.md"
+requires-python = ">=3.10.9"
+dependencies = [
+    'fastapi',
+    'pydantic',
+    'requests',
+    'requests-mock',
+    'httpx',
+    'uvicorn',
+    'jinja2',
+    'readabilipy',
+    'bleach',
+    'python-multipart',
+    'pytest',
+    'pytest-asyncio',
+    'pytest-httpserver',
+]
+
+[tool.setuptools]
+# Correct package discovery configuration
+package-dir = {"" = "src"}
+packages = {find = {where = ["src"]}}
+
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
+pythonpath = ["src"]
+markers = [
+    "unit: mark tests as unit tests",
+    "integration: mark tests as integration tests"
+]
+asyncio_default_fixture_loop_scope = "function"
