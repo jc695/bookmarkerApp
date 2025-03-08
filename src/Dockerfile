@@ -1,27 +1,36 @@
-FROM python:3.10-slim
+# Use a lightweight Python image
+FROM python:3.10-slim AS base
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/root/.cargo/bin:${PATH}"
 
+# Set working directory
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install system dependencies and Rust in a single layer
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     build-essential \
-    curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    curl && \
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
+    apt-get purge -y --auto-remove build-essential curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
+# Install uv and clean pip cache
+RUN pip install --no-cache-dir uv==0.5.16
 
-RUN pip install uv==0.5.16
-
-# Copy project files
+# Copy dependency files first for caching
 COPY pyproject.toml uv.lock README.md ./
+
+# Copy application code in a single layer
 COPY src/frontend/templates /app/src/frontend/templates/
 COPY src/bookmarker /app/src/bookmarker/
 COPY src/tests /app/src/tests/
- 
+
+# Create virtual environment and install dependencies in one step
 RUN uv venv && \
     . .venv/bin/activate && \
     uv pip install -e . && \

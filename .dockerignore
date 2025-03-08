@@ -1,0 +1,27 @@
+# Ignore everything by default
+*
+
+# Explicitly include needed files
+!pyproject.toml
+!uv.lock
+!README.md
+!src/
+!.dockerignore
+!docker-compose.yml
+
+# Exclude development files
+.git
+.idea
+.vscode
+__pycache__
+.DS_Store
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+# tree files
+expected_tree.txt
+tree.txt

@@ -1,5 +1,9 @@
+# MacOS 
+.DS_Store
+
 # tree output
 tree.txt
+expected_tree.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
