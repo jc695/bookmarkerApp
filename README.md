@@ -43,7 +43,7 @@ A web-based article bookmarking service that saves, parses, and displays article
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/bookmarker.git
+git clone https://github.com/jc695/bookmarker.git
 cd bookmarker
 
 # Create virtual environment
@@ -58,7 +58,7 @@ uv sync  # or pip install -r requirements.txt
 
 ```bash
 # Development server with auto-reload
-uvicorn src.bookmarker.main:app --reload
+uvicorn bookmarker.main:app --reload
 
 # Access at http://localhost:8000
 ```
