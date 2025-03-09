@@ -1,3 +1,6 @@
+# custom
+.storage/
+
 # MacOS 
 .DS_Store
 

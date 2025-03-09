@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bookmarkerapp"
-version = "0.1.0"
+version = "0.2.0"
 description = "Instapaper Bookmarker App Alternative"
 readme = "README.md"
 requires-python = ">=3.10.9"
@@ -22,6 +22,12 @@ dependencies = [
     'pytest',
     'pytest-asyncio',
     'pytest-httpserver',
+    'beautifulsoup4',
+    'llama-index',
+    'transformers',
+    'sentence-transformers',
+    'llama-index-embeddings-huggingface',
+    'ZODB',
 ]
 
 [tool.setuptools]

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, HttpUrl
 import httpx
 from lxml import html
@@ -8,19 +8,19 @@ import webbrowser
 import time
 from typing import Optional
 
-router = APIRouter()
+app = FastAPI()
 
 class ResponseModel(BaseModel):
     title: str
     published_date: Optional[str] = None
     description: str
-    thumbnail: str
-    source_url: str
+    thumbnail: HttpUrl
+    source_url: HttpUrl
     process_ts: float
 
 async def fetch_content(url: str) -> str:
     """Fetches webpage content."""
-    async with httpx.AsyncClient(follow_redirects=True) as client:  # Added follow_redirects=True
+    async with httpx.AsyncClient() as client:
         response = await client.get(url)
         response.raise_for_status()
     return response.text
@@ -74,8 +74,8 @@ class ContentExtractor:
         img_src = self.tree.xpath('//img/@src')
         return urljoin(self.url, img_src[0].strip()) if img_src else "https://example.com/default-thumbnail.jpg"
 
-@router.get("/parse-webpage/", response_model=ResponseModel)
-async def parse_webpage(url: str = Query(..., title="webpage URL")):
+@app.get("/parse-blog/", response_model=ResponseModel)
+async def parse_blog(url: str = Query(..., title="Blog URL")):
     start_time = time.perf_counter()
 
     try:
@@ -100,6 +100,10 @@ async def parse_webpage(url: str = Query(..., title="webpage URL")):
         )
 
     except httpx.HTTPStatusError as e:
-        raise HTTPException(status_code=e.response.status_code, detail="Failed to fetch web content")
+        raise HTTPException(status_code=e.response.status_code, detail="Failed to fetch blog content")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    webbrowser.open("http://127.0.0.1:8002/docs")
+    uvicorn.run("test:app", host="127.0.0.1", port=8002, reload=True)

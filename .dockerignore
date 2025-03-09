@@ -21,6 +21,7 @@ __pycache__
 .Python
 env/
 venv/
+.storage/
 
 # tree files
 expected_tree.txt

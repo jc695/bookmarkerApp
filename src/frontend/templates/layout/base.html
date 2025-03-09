@@ -3,73 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Bookmarker</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" href="/static/favicon.ico">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Stylesheets -->
-    <!-- <link rel="stylesheet" href="/static/css/main.css"> -->
-     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="icon" href="/static/favicon.ico">
 </head>
 <body>
+    <header class="navbar navbar-expand-md navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard">Bookmarker</a>
+            <button class="btn btn-primary" 
+                    data-bs-toggle="modal"
+                    data-bs-target="#addArticleModal">
+                Add New
+            </button>
+        </div>
+    </header>
 
-    <!-- Main Layout -->
-    <div class="container">
+    <main class="container-fluid mt-4">
+        {% block content %}{% endblock %}
+    </main>
 
-        <!-- Sidebar -->
-        {% include "partials/sidebar.html" %}
-        
-        <!-- Main Content -->
-        <main id="main-content" class="content">
-            {% block content %}{% endblock %}
-        </main>
-    </div>
-
-    <!-- Global Modals -->
-    <div id="collectionModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="modal.close('collectionModal')">×</span>
-            <h2>Create New Collection</h2>
-            <form id="collectionForm">
-                <div class="form-group">
-                    <label for="collectionName">Name (100 chars max)</label>
-                    <input type="text" id="collectionName" name="name" maxlength="100" required>
+    <!-- Add Article Modal -->
+    <div class="modal fade" id="addArticleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Save Article</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="form-group">
-                    <label for="collectionDescription">Description (Optional)</label>
-                    <textarea id="collectionDescription" name="description" maxlength="200"></textarea>
-                </div>
-                <div class="button-group">
-                    <button type="button" onclick="modal.close('collectionModal')">Cancel</button>
-                    <button type="submit">Create Collection</button>
-                </div>
-            </form>
+                <form hx-post="/save" hx-target="#articleGrid" hx-swap="beforeend">
+                    <div class="modal-body">
+                        <input type="url" name="url" class="form-control mb-3" 
+                               placeholder="Enter article URL" required>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Save Article</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
-    <!-- Theme Controls -->
-    <div class="theme-controls">
-        <button data-theme-option="light" onclick="themeSwitcher.setTheme('light')">☀️ Light</button>
-        <button data-theme-option="dark" onclick="themeSwitcher.setTheme('dark')">🌙 Dark</button>
-        <button data-theme-option="system" onclick="themeSwitcher.setTheme('system')">🖥️ System</button>
+    <!-- Toast -->
+    <div id="toast" class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-3">
+        <div class="d-flex">
+            <div class="toast-body"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
     </div>
 
-    <!-- Font Controls -->
-    <div class="font-controls">
-        <button data-font-control="decrease" onclick="fontSizeControl.adjust(-1)">A-</button>
-        <button data-font-control="increase" onclick="fontSizeControl.adjust(1)">A+</button>
-    </div>
-
-    <!-- Scripts -->
-    <script src="/static/javascript/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
