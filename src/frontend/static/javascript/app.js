@@ -1,53 +1,138 @@
-// Article card menu toggle
-document.querySelectorAll('.menu-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        const menu = btn.closest('.card-actions').querySelector('.menu');
-        menu.classList.toggle('active');
-    });
-});
+// HTMX Setup
+htmx.logAll = true; // Remove in production
 
-// Theme switching
-const themeSelector = document.getElementById('theme');
-themeSelector.addEventListener('change', (e) => {
-    document.body.setAttribute('data-theme', e.target.value);
-    localStorage.setItem('theme', e.target.value);
-});
+// Theme Switcher
+const themeSwitcher = {
+    init() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        this.updateSwitcher(savedTheme);
+    },
+    
+    updateSwitcher(theme) {
+        document.querySelectorAll('[data-theme-option]').forEach(el => {
+            el.classList.toggle('active', el.dataset.themeOption === theme);
+        });
+    },
+    
+    setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        this.updateSwitcher(theme);
+    }
+};
 
-// Font size control
-document.getElementById('increase-font').addEventListener('click', () => {
-    document.body.style.fontSize = 
-        parseInt(window.getComputedStyle(document.body).fontSize) + 2 + 'px';
-});
+// Font Size Control
+const fontSizeControl = {
+    sizes: ['small', 'medium', 'large'],
+    current: localStorage.getItem('font-size') || 'medium',
+    
+    init() {
+        document.body.classList.add(`font-${this.current}`);
+        this.updateButtons();
+    },
+    
+    adjust(delta) {
+        const currentIndex = this.sizes.indexOf(this.current);
+        const newIndex = Math.max(0, Math.min(currentIndex + delta, this.sizes.length - 1));
+        this.current = this.sizes[newIndex];
+        document.body.className = `font-${this.current}`;
+        localStorage.setItem('font-size', this.current);
+        this.updateButtons();
+    },
+    
+    updateButtons() {
+        document.querySelectorAll('[data-font-control]').forEach(btn => {
+            btn.disabled = false;
+        });
+        if (this.current === 'small') {
+            document.querySelector('[data-font-control="decrease"]').disabled = true;
+        }
+        if (this.current === 'large') {
+            document.querySelector('[data-font-control="increase"]').disabled = true;
+        }
+    }
+};
 
-// Modal handling
-const modal = new Modal({
-    trigger: '#newCollectionBtn',
-    content: '#collectionModal'
-});
+// Modal Handling
+const modal = {
+    open(modalId) {
+        const modalEl = document.getElementById(modalId);
+        if (modalEl) {
+            modalEl.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+    },
+    
+    close(modalId) {
+        const modalEl = document.getElementById(modalId);
+        if (modalEl) {
+            modalEl.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+};
 
-// NEW CODE
-
-// Article card menu toggle
-document.querySelectorAll('.menu-dots').forEach(button => {
-    button.addEventListener('click', (e) => {
-        const menu = button.closest('.article-card').querySelector('.menu-items');
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    });
-});
-
-// Close menus when clicking outside
+// Menu Handling
 document.addEventListener('click', (e) => {
-    if (!e.target.matches('.menu-dots, .menu-item')) {
-        document.querySelectorAll('.menu-items').forEach(menu => {
+    if (e.target.matches('.menu-btn')) {
+        const menu = e.target.closest('.article-card').querySelector('.menu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    } else if (!e.target.closest('.menu') && !e.target.closest('.menu-btn')) {
+        document.querySelectorAll('.menu').forEach(menu => {
             menu.style.display = 'none';
         });
     }
 });
 
-// Collection menu interactions
-document.querySelectorAll('.add-collection').forEach(button => {
-    button.addEventListener('click', () => {
-        // Implement collection selection logic
-        alert('Add to collection functionality coming soon!');
+// Search Functionality
+document.getElementById('searchInput')?.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('.article-card').forEach(card => {
+        const title = card.querySelector('.article-title').textContent.toLowerCase();
+        card.style.display = title.includes(term) ? 'block' : 'none';
     });
 });
+
+// Collection Form
+document.getElementById('collectionForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = {
+        name: formData.get('name'),
+        description: formData.get('description')
+    };
+    
+    try {
+        const response = await fetch('/api/collections', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            modal.close('collectionModal');
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error creating collection:', error);
+    }
+});
+
+// HTMX Events
+document.body.addEventListener('htmx:afterSwap', (e) => {
+    if (e.detail.elt.classList.contains('article-card')) {
+        // Initialize new elements
+    }
+});
+
+document.body.addEventListener('htmx:afterRequest', (e) => {
+    if (e.detail.failed) {
+        // Handle errors
+    }
+});
+
+// Initialize components
+themeSwitcher.init();
+fontSizeControl.init();

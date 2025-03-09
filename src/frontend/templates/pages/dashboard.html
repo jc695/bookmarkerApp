@@ -1,40 +1,41 @@
-{% extends "layouts/base.html" %}
+{% extends "layout/base.html" %}
 
 {% block content %}
-<!-- Article Grid Container -->
-<div class="article-grid-container">
-    <!-- Header Section -->
-    <div class="header-actions">
-        <button id="refreshAllBtn">Refresh All Links</button>
+<!-- Main Content Section -->
+<div class="dashboard-container">
+    <!-- Action Bar -->
+    <button  style="color: blue;">\\\\\\\\\\ Action Bar \\\\\\\\\</button>
+
+     <div class="tomato">
+        <form hx-post="/save" hx-target="#articleGrid" hx-swap="beforeend">
+            <input type="url" name="url" placeholder="Enter article URL" required>
+            <button type="submit">Save Article</button>
+        </form>
+     </div>
+    <div class="action-bar">
+        <button id="refreshAllBtn">Refresh All</button>
         <input type="search" placeholder="Search articles..." id="searchInput">
+        <button id="filterBtn">Filters</button>
+
     </div>
 
     <!-- Article Grid -->
     <div class="article-grid" id="articleGrid">
-        {% for article in articles %}
-            {% include "partials/article_card.html" %}
-        {% endfor %}
+        {% if articles %}
+            {% for article in articles %}
+                {% include "partials/article_card.html" %}
+            {% endfor %}
+        {% else %}
+            <p>No articles saved yet</p>
+        {% endif %}
     </div>
-</div>
 
-<!-- Create Collection Modal -->
-<div class="modal" id="collectionModal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2>Create New Collection</h2>
-        <form id="collectionForm">
-            <div class="form-group">
-                <label for="collectionName">Collection Name (100 chars max)</label>
-                <input type="text" id="collectionName" maxlength="100" required>
-            </div>
-            <div class="form-group">
-                <label for="collectionDescription">Description (Optional, 200 chars max)</label>
-                <textarea id="collectionDescription" maxlength="200"></textarea>
-            </div>
-            <div class="button-group">
-                <button type="button" class="secondary-btn" id="cancelCollection">Cancel</button>
-                <button type="submit" class="primary-btn">Create Collection</button>
-            </div>
+    <!-- Add Article Form -->
+    <div class="add-article-section">
+        <h3>Save New Article</h3>
+        <form hx-post="/save" hx-target="#articleGrid" hx-swap="beforeend">
+            <input type="url" name="url" placeholder="Enter article URL" required>
+            <button type="submit">Save Article</button>
         </form>
     </div>
 </div>
@@ -42,46 +43,29 @@
 
 {% block scripts %}
 <script>
-// Modal functionality
-document.getElementById('newCollectionBtn').addEventListener('click', () => {
-    document.getElementById('collectionModal').style.display = 'block';
-});
-
-document.querySelector('.close-btn').addEventListener('click', () => {
-    document.getElementById('collectionModal').style.display = 'none';
-});
-
-// Collection form submission
-document.getElementById('collectionForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const collectionData = {
-        name: document.getElementById('collectionName').value,
-        description: document.getElementById('collectionDescription').value
-    };
-
-    try {
-        const response = await fetch('/api/collections', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(collectionData)
-        });
-        
-        if (response.ok) {
-            location.reload(); // Refresh to show new collection
-        }
-    } catch (error) {
-        console.error('Error creating collection:', error);
-    }
-});
+// HTMX configuration
+htmx.config.useTemplateFragments = true;
 
 // Search functionality
 document.getElementById('searchInput').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     document.querySelectorAll('.article-card').forEach(card => {
-        const title = card.querySelector('h3').textContent.toLowerCase();
+        const title = card.querySelector('.article-title').textContent.toLowerCase();
         card.style.display = title.includes(term) ? 'block' : 'none';
     });
+});
+
+// Collection creation handler
+document.getElementById('newCollectionBtn').addEventListener('click', () => {
+    // This would trigger your collection creation modal
+    // Assuming you have a modal in your base template
+    const modal = document.getElementById('collectionModal');
+    modal.style.display = 'block';
+});
+
+// Delete confirmation
+document.addEventListener('htmx:confirm', (evt) => {
+    evt.detail.issueRequest = confirm('Are you sure you want to delete this article?');
 });
 </script>
 {% endblock %}

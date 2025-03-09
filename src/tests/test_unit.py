@@ -119,5 +119,5 @@ def test_delete_non_existent_article():
 
 def test_view_non_existent_article():
     response = client.get("/article/non-existent", follow_redirects=False)
-    assert response.status_code == 303
-    assert response.headers["location"] == "/dashboard"
+    assert response.status_code == 404
+    # assert response.headers["location"] == "/dashboard"

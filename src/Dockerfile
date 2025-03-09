@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir uv==0.5.16
 COPY pyproject.toml uv.lock README.md ./
 
 # Copy application code in a single layer
-COPY src/frontend/templates /app/src/frontend/templates/
+COPY src/frontend /app/src/frontend/
 COPY src/bookmarker /app/src/bookmarker/
 COPY src/tests /app/src/tests/
 

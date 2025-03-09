@@ -1,33 +1,33 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from uuid import uuid4
 from bookmarker.parser import parse_article, ArticleResult, ParseError
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="src/frontend/static"), name="static")
 templates = Jinja2Templates(directory="src/frontend/templates")
 
 articles_db = {}
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def home(request: Request):
     return RedirectResponse("/dashboard", status_code=303)
 
-@app.get("/dashboard", response_class=HTMLResponse)
+@app.get("/dashboard")
 async def dashboard(request: Request):
     return templates.TemplateResponse(
-        request,
-        "dashboard.html",
+        "pages/dashboard.html",
         {"request": request, "articles": articles_db.values()}
     )
 
-@app.post("/save", response_class=HTMLResponse)
+@app.post("/save")
 async def save_article(request: Request, url: str = Form(...)):
     parsed = parse_article(url)
     
     if isinstance(parsed, ParseError):
         return templates.TemplateResponse(
-            request,
             "error.html",
             {"request": request, "error": parsed.error},
             status_code=400
@@ -36,27 +36,25 @@ async def save_article(request: Request, url: str = Form(...)):
     article_id = str(uuid4())
     articles_db[article_id] = {**parsed.model_dump(), "id": article_id}
 
-    # Exact header check for HTMX requests
     if request.headers.get("hx-request") == "true":
         return templates.TemplateResponse(
-            request,
             "partials/article_card.html",
             {"request": request, "article": articles_db[article_id]}
         )
+    
     return RedirectResponse("/dashboard", status_code=303)
 
-@app.get("/article/{article_id}", response_class=HTMLResponse)
+@app.get("/article/{article_id}")
 async def view_article(request: Request, article_id: str):
     article = articles_db.get(article_id)
     if not article:
-        return RedirectResponse("/dashboard", status_code=303)
+        raise HTTPException(status_code=404, detail="Article not found")
     return templates.TemplateResponse(
-        request,
-        "article.html",
+        "pages/article.html",
         {"request": request, "article": article}
     )
 
-@app.delete("/article/{article_id}", response_class=HTMLResponse)
+@app.delete("/article/{article_id}")
 async def delete_article(article_id: str):
     if article_id in articles_db:
         del articles_db[article_id]

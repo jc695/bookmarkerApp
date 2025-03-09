@@ -1,25 +1,28 @@
 <div class="article-card" data-id="{{ article.id }}">
   <img src="{{ article.thumbnail }}" class="thumbnail" />
   <div class="card-content">
-    <h3>{{ article.title }}</h3>
-    <a href="{{ article.url }}" target="_blank">{{ article.domain }}</a>
+    <h3 class="article-title">{{ article.title }}</h3>
+    <a href="{{ article.url }}" target="_blank" class="article-domain">{{ article.domain }}</a>
+    
     <div class="card-actions">
+      <!-- Menu trigger button -->
       <button class="menu-btn">⋯</button>
+      
+      <!-- Action menu -->
       <div class="menu">
-        <button class="delete">Delete</button>
-        <button class="share">Share</button>
-        <!-- Add other actions -->
-        <div class="card-menu">
-          <button class="menu-dots">⋯</button>
-          <div class="menu-items">
-            <button class="menu-item delete">Delete</button>
-            <button class="menu-item share">Share</button>
-            <button class="menu-item tag">Add Tag</button>
-            <button class="menu-item archive">Archive</button>
-            <button class="menu-item favorite">Favorite</button>
-            <button class="menu-item add-collection">Add to Collection</button>
-            <button class="menu-item refresh">Refresh Link</button>
-          </div>
+        <div class="menu-items">
+          <button class="menu-item delete"
+                  hx-delete="/article/{{ article.id }}"
+                  hx-target="closest .article-card"
+                  hx-confirm="Are you sure you want to delete this article?">
+            Delete
+          </button>
+          <button class="menu-item share">Share</button>
+          <button class="menu-item tag">Add Tag</button>
+          <button class="menu-item archive">Archive</button>
+          <button class="menu-item favorite">Favorite</button>
+          <button class="menu-item add-collection">Add to Collection</button>
+          <button class="menu-item refresh">Refresh Link</button>
         </div>
       </div>
     </div>
