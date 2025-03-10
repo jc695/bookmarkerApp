@@ -12,6 +12,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 
 try:
+    from bookmarker import logger
     from bookmarker.parser import router as parser_router, parse_webpage
 except ImportError as e:
     raise ImportError(f"Failed to import parser module: {str(e)}")
@@ -19,10 +20,6 @@ except ImportError as e:
 import ZODB, ZODB.FileStorage
 import transaction
 from persistent.mapping import PersistentMapping
-
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 # Initialize ZODB with directory check
 STORAGE_DIR = ".storage"
@@ -104,7 +101,7 @@ async def home():
 async def dashboard(request: Request, db_conn=Depends(get_db)):
     try:
         async with db_conn as conn:
-            articles = list(conn.root().articles_db.values())
+            articles = [(article_id, data) for article_id, data in conn.root().articles_db.items()]
             return templates.TemplateResponse(
                 "pages/dashboard.html",
                 {"request": request, "articles": articles}
@@ -118,6 +115,14 @@ async def save_article(request: Request, url: str = Form(...), db_conn=Depends(g
     try:
         async with db_conn as conn:
             logger.debug(f"Attempting to save article from URL: {url}")
+            existing_article_id = get_article_by_url(conn, url)
+            
+            if existing_article_id and request.headers.get("hx-request") == "true":
+                return templates.TemplateResponse(
+                    "partials/popup_feedback.html",
+                    {"request": request, "message": "Article already exists!"}
+                )
+            
             parsed = await parse_webpage(url=url)
             article_id = upsert_article(conn, parsed, url)
             article = conn.root().articles_db[article_id]
@@ -125,7 +130,7 @@ async def save_article(request: Request, url: str = Form(...), db_conn=Depends(g
             if request.headers.get("hx-request") == "true":
                 return templates.TemplateResponse(
                     "partials/article_card.html",
-                    {"request": request, "article": article}
+                    {"request": request, "article": article, "article_id": article_id}
                 )
             return RedirectResponse("/dashboard", status_code=303)
     except Exception as e:
@@ -165,7 +170,7 @@ async def get_all_articles(db_conn=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.delete("/article/{article_id}", response_class=HTMLResponse)
-async def delete_article(article_id: str, db_conn=Depends(get_db)):
+async def delete_article(request: Request, article_id: str, db_conn=Depends(get_db)):
     try:
         async with db_conn as conn:
             articles_db = conn.root().articles_db
@@ -173,7 +178,8 @@ async def delete_article(article_id: str, db_conn=Depends(get_db)):
                 raise HTTPException(status_code=404, detail="Article not found")
             del articles_db[article_id]
             conn.root().articles_db = articles_db
-            return HTMLResponse(status_code=204)
+            
+            # TODO - Not able to get the delete popup to work
     except HTTPException as e:
         raise
     except Exception as e:

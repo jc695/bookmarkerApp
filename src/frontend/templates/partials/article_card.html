@@ -1,31 +1,16 @@
-<div class="col">
-  <div class="card h-100">
-      {% if article.thumbnail %}
-      <img src="{{ article.thumbnail }}" class="card-img-top" alt="Article thumbnail">
-      {% endif %}
-      <div class="card-body">
-          <h5 class="card-title">{{ article.title }}</h5>
-          <a href="{{ article.url }}" target="_blank" class="card-link">{{ article.domain }}</a>
-      </div>
-      <div class="card-footer bg-transparent">
-          <div class="dropdown">
-              <button class="btn btn-sm btn-secondary dropdown-toggle" 
-                      type="button" 
-                      data-bs-toggle="dropdown">
-                  Actions
-              </button>
-              <ul class="dropdown-menu">
-                  <li>
-                      <a class="dropdown-item text-danger" 
-                         hx-delete="/article/{{ article.id }}"
-                         hx-target="closest .col"
-                         hx-swap="outerHTML">
-                          Delete
-                      </a>
-                  </li>
-                  <li><a class="dropdown-item" href="/article/{{ article.id }}">View Details</a></li>
-              </ul>
-          </div>
-      </div>
-  </div>
+<div class="article-card bg-white shadow-md rounded-lg p-4" data-id="/article/{{ article_id }}">
+    <h2 class="text-xl font-semibold text-gray-800">{{ article.title }}</h2>
+    <p class="text-sm text-gray-600">{{ article.site_name }}</p>
+    <div class="mt-4 flex justify-end gap-2">
+        <a 
+            href="/article/{{ article_id }}" 
+            class="text-blue-500 hover:underline"
+        >View</a>
+        <button 
+            hx-delete="/article/{{ article_id }}" 
+            hx-target="closest .article-card" 
+            hx-swap="delete"
+            class="text-red-500 hover:text-red-700"
+        >Delete</button>
+    </div>
 </div>

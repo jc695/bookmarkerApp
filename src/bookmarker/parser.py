@@ -3,8 +3,6 @@ from pydantic import BaseModel, HttpUrl
 import httpx
 from lxml import html
 from urllib.parse import urljoin
-import uvicorn
-import webbrowser
 import time
 from typing import Optional
 
@@ -14,13 +12,14 @@ class ResponseModel(BaseModel):
     title: str
     published_date: Optional[str] = None
     description: str
-    thumbnail: str
-    source_url: str
+    thumbnail: HttpUrl
+    source_url: HttpUrl
+    site_name: Optional[str] = None  # Changed to optional
     process_ts: float
 
 async def fetch_content(url: str) -> str:
     """Fetches webpage content."""
-    async with httpx.AsyncClient(follow_redirects=True) as client:  # Added follow_redirects=True
+    async with httpx.AsyncClient(follow_redirects=True) as client:
         response = await client.get(url)
         response.raise_for_status()
     return response.text
@@ -59,6 +58,36 @@ class ContentExtractor:
 
     def extract_published_date(self) -> Optional[str]:
         return self.extract_attribute("published_time") or self.extract_attribute("modified_time")
+    
+    def extract_site_name(self) -> Optional[str]:
+        """Extracts site name from various meta tags with fallbacks."""
+        # Try common site name meta tags
+        site_name = (
+            self.extract_attribute("site_name") or
+            self.extract_attribute("site") or
+            self.extract_attribute("application-name") or
+            self.extract_attribute("publisher")  # Dublin Core or Open Graph
+        )
+        if site_name:
+            return site_name
+
+        # Try Twitter site (strip @ if present)
+        twitter_site = self.extract_attribute("twitter:site")
+        if twitter_site:
+            return twitter_site.lstrip('@')
+
+        # Fallback to parsing <title> tag
+        title_tag = self.tree.xpath('//title/text()')
+        if title_tag:
+            title = title_tag[0].strip()
+            # Assuming format like "Article Title - Site Name"
+            parts = title.split(" - ")
+            if len(parts) > 1:
+                return parts[-1]  # Take the last part as site name
+
+        # Final fallback: domain name from URL
+        from urllib.parse import urlparse
+        return urlparse(self.url).hostname
 
     def extract_description(self) -> str:
         return self.extract_attribute("description") or "No description found"
@@ -83,10 +112,13 @@ async def parse_webpage(url: str = Query(..., title="webpage URL")):
         tree = html.fromstring(html_content)
 
         extractor = ContentExtractor(tree, url)
+
         title = extractor.extract_title()
         published_date = extractor.extract_published_date()
         description = extractor.extract_description()
         first_image = extractor.extract_first_image()
+        source_url = urljoin(url, "/")
+        site_name = extractor.extract_site_name()
 
         process_time = time.perf_counter() - start_time
 
@@ -95,7 +127,8 @@ async def parse_webpage(url: str = Query(..., title="webpage URL")):
             published_date=published_date,
             description=description,
             thumbnail=first_image,
-            source_url=url,
+            source_url=source_url,
+            site_name=site_name,
             process_ts=process_time
         )
 

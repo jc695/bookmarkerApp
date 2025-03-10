@@ -1,9 +1,11 @@
 {% extends "layout/base.html" %}
 
 {% block content %}
-    <div class="container">
-        <h1>Error</h1>
-        <p class="error">{{ error }}</p>
-        <a href="/dashboard">Back to Dashboard</a>
+<div class="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+    <div class="text-center">
+        <h1 class="text-5xl font-bold text-red-500 mb-4">Error</h1>
+        <p class="text-gray-700 mb-6">{{ error }}</p>
+        <a href="/dashboard" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Back to Dashboard</a>
     </div>
+</div>
 {% endblock %}

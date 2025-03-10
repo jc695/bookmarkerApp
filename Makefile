@@ -1,4 +1,4 @@
-.PHONY: up down run run-reload open-api erase-storage refresh-package test test-unit test-integration build-tree help
+.PHONY: up down run run-reload open-api open-web erase-storage refresh-package test test-unit test-integration build-tree help
 .DEFAULT_GOAL := help
 
 help:  ## Display this help message
@@ -18,6 +18,9 @@ run-reload:  ## Run with reload for development
 
 open-api:  ## Open the OpenAPI documentation in the browser
 	open http://localhost:8000/docs
+
+open-web:  ## Open the web application in the browser
+	open http://localhost:8000
 
 erase-storage:  ## Erase the .storage/ directory with confirmation
 	@echo "Are you sure you want to erase the .storage/ directory? [y/N]"; \
